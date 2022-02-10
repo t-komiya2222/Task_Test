@@ -1,4 +1,4 @@
-<h1>一覧画面</h1>
+<h1>aaa一覧画面</h1>
 
 <table border="1">
     @foreach ($posts as $post)
