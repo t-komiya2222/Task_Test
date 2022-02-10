@@ -1,13 +1,11 @@
-<h1>aaa一覧画面</h1>
-
-<h1>hogehoge</h1>
+<h1>一覧画面</h1>
 
 <table border="1">
     @foreach ($posts as $post)
         <tr>
-            <td>{{ $post->title }}</td>
-            <td>{{ $post->image }}</td>
-            <td>{{ $post->description }}</td>
+            <td><a href="{{ route('post.show',$post->id) }}">{{ $post->title }}</a></td>
+            <th>{{ $post->image }}</th>
+            <th>{{ $post->description }}</th>
         </tr>
     @endforeach
 </table>
