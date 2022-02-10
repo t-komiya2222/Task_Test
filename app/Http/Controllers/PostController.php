@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use App\Models\Post;
+use Illuminate\Support\Facades\Auth;
 
 class PostController extends Controller
 {
@@ -25,6 +27,7 @@ class PostController extends Controller
     public function index()
     {
         //
+        return view('index');
     }
 
     /**
@@ -34,7 +37,8 @@ class PostController extends Controller
      */
     public function create()
     {
-        return view('create');
+        $user_id = Auth::id();
+        return view('create', compact('user_id'));
     }
 
     /**
@@ -46,6 +50,8 @@ class PostController extends Controller
     public function store(Request $request)
     {
         //
+        Post::create($request->all());
+        return redirect()->route('post.index')->with('success', '新規登録完了しました');
     }
 
     /**
