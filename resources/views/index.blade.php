@@ -1,5 +1,7 @@
 <h1>aaa一覧画面</h1>
 
+<h1>hogehoge</h1>
+
 <table border="1">
     @foreach ($posts as $post)
         <tr>
