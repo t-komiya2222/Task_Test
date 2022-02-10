@@ -85,6 +85,7 @@
                 </div>
 
                 <div class="links">
+                    <a href="{{ url('/post') }}">index</a>
                     <a href="{{ url('post/create') }}">PostCreate</a>
                 </div>
             </div>
