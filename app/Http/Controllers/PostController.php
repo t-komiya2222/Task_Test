@@ -75,7 +75,8 @@ class PostController extends Controller
      */
     public function edit($id)
     {
-        //
+        $post = Post::find($id);
+        return view('edit', compact('post'));
     }
 
     /**
@@ -87,7 +88,13 @@ class PostController extends Controller
      */
     public function update(Request $request, $id)
     {
-        //
+        $update = [
+            'title' => $request->title,
+            'image' => $request->image,
+            'description' => $request->description,
+        ];
+        Post::where('id', $id)->update($update);
+        return back()->with('success', '編集完了');
     }
 
     /**
@@ -98,6 +105,7 @@ class PostController extends Controller
      */
     public function destroy($id)
     {
-        //
+        Post::where('id', $id)->delete();
+        return redirect()->route('post.index')->with('success', '削除完了');
     }
 }

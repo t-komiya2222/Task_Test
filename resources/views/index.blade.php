@@ -1,5 +1,9 @@
 <h1>一覧画面</h1>
 
+@if ($message = Session::get('success'))
+<p>{{ $message }}</p>
+@endif
+
 <table border="1">
     @foreach ($posts as $post)
         <tr>
