@@ -10,7 +10,9 @@
     <a href="{{ url('/') }}">Home</a>
 </p>
 
+<p>
 投稿ID:{{ $post->id }}<br>
 タイトル：{{ $post->title }}<br>
-イメージ:{{ $post->image }}<br>
+イメージ:<img src="{{ asset('/storage/'.$post->image) }}"><br>
 説明:{{ $post->description }}<br>
+</p>

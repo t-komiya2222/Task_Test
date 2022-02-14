@@ -50,7 +50,13 @@ class PostController extends Controller
     public function store(Request $request)
     {
         //
-        Post::create($request->all());
+        $path = $request->file('image')->store('public');
+        Post::create([
+            'user_id' => $request->user_id,
+            'title' => $request->title,
+            'description' => $request->description,
+            'image' => basename($path)
+        ]);
         return redirect()->route('post.index')->with('success', '新規登録完了しました');
     }
 
