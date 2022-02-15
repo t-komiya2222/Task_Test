@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Post;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
 
 class PostController extends Controller
 {
@@ -113,5 +114,14 @@ class PostController extends Controller
     {
         Post::where('id', $id)->delete();
         return redirect()->route('post.index')->with('success', '削除完了');
+    }
+
+    /**
+     * Download
+     */
+    public function download(Request $request)
+    {
+        $download_image = Post::find($request['id']);
+        return response()->download(storage_path('/app/public/'.$download_image['image']));
     }
 }

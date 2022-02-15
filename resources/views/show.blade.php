@@ -7,6 +7,11 @@
         @method('DELETE')
         <input type="submit" name="" value="削除">
     </form>
+    <form action="{{route('download')}}" method="post">
+        @csrf
+        <input type="hidden" name="id" value="{{$post['id']}}">
+        <button type="submit">ダウンロード</button>
+    </form>
     <a href="{{ url('/') }}">Home</a>
 </p>
 
