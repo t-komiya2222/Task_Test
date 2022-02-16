@@ -16,10 +16,4 @@ class Post extends Model
         'image',
         'description'
     ];
-    /*
-    public function getData()
-    {
-        return $this->id.'： ' .$this->user->name.' イメージ:'. $this->id;
-    }
-    */
 }

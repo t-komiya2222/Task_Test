@@ -50,13 +50,13 @@ class PostController extends Controller
      */
     public function store(Request $request)
     {
-        //
-        $path = $request->file('image')->store('public');
+        $file_name = $request->file('image')->getClientOriginalName();
         Post::create([
             'user_id' => $request->user_id,
             'title' => $request->title,
             'description' => $request->description,
-            'image' => basename($path)
+            //第一引数は追加したいパス 第二引数は保存したい場所?　第三引数は指定したいファイル名
+            'image' => Storage::putFileAs('', $request->file('image'), $file_name)
         ]);
         return redirect()->route('post.index')->with('success', '新規登録完了しました');
     }
