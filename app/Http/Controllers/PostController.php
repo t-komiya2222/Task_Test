@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use \Exception;
 
 class PostController extends Controller
@@ -65,12 +66,13 @@ class PostController extends Controller
                 ]);
                 return redirect()->route('post.index')->with('success', '新規登録完了しました');
             }else{
-                throw new Exception('タイトルまたは画像が未入力です');
+                throw new Exception('新規登録:タイトルまたは画像が未入力です');
             }
         } catch(Exception $ex){
             //例外発生時の処理（Exceptionのエラー分を取得して表示してくれる）
             $user_id = Auth::id();
             echo $ex->getMessage();
+            \Log::error($ex->getMessage());
             return view('create', compact('user_id'));
         }
     }
@@ -119,11 +121,12 @@ class PostController extends Controller
                 Post::where('id', $id)->update($update);
                 return back()->with('success', '編集完了');
             }else{
-                throw new Exception('タイトルまたは画像が未入力です');
+                throw new Exception('更新:タイトルまたは画像が未入力です');
             }
         }catch(Exception $ex){
             $post = Post::find($id);
             echo $ex->getMessage();
+            \Log::error($ex->getMessage());
             return view('edit', compact('post'));
         }
     }
@@ -146,6 +149,7 @@ class PostController extends Controller
             }
         }catch(Exception $ex){
             echo $ex->getMessage();
+            \Log::error($ex->getMessage());
             $posts = Post::all();
             return view('index', compact('posts'));
         }
