@@ -72,7 +72,7 @@ class PostController extends Controller
             //例外発生時の処理（Exceptionのエラー分を取得して表示してくれる）
             $user_id = Auth::id();
             echo $ex->getMessage();
-            \Log::error($ex->getMessage());
+            Log::error($ex->getMessage());
             return view('create', compact('user_id'));
         }
     }
@@ -126,7 +126,7 @@ class PostController extends Controller
         }catch(Exception $ex){
             $post = Post::find($id);
             echo $ex->getMessage();
-            \Log::error($ex->getMessage());
+            Log::error($ex->getMessage());
             return view('edit', compact('post'));
         }
     }
@@ -149,7 +149,7 @@ class PostController extends Controller
             }
         }catch(Exception $ex){
             echo $ex->getMessage();
-            \Log::error($ex->getMessage());
+            Log::error($ex->getMessage());
             $posts = Post::all();
             return view('index', compact('posts'));
         }
