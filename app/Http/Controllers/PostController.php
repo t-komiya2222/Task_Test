@@ -140,6 +140,7 @@ class PostController extends Controller
         try {
             $post_id = DB::table('posts')->where('id', $id)->first();
             if (isset($post_id)) {
+                Storage::delete('' . $post_id->image);
                 Post::where('id', $id)->delete();
                 return redirect()->route('post.index')->with('success', '削除完了');
             } else {
