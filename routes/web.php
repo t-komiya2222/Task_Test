@@ -21,3 +21,6 @@ Route::get('/home', 'HomeController@index')->name('home');
 
 #Posts Route
 Route::resource('/post', 'PostController');
+
+#Posts Download Route
+Route::post('/download', 'PostController@download')->name('download');
