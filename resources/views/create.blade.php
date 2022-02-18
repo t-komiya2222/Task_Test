@@ -1,6 +1,10 @@
 <h1>新規登録</h1>
 <p><a href="{{ route('post.index')}}">一覧画面</a></p>
 
+@if ($message = Session::get('failure'))
+<p>{{ $message }}</p>
+@endif
+
 <form action="{{ route('post.index')}}" method="POST" enctype="multipart/form-data">
     @csrf
     <p>タイトル：<input type="text" name="title" value="{{old('title')}}"></p>

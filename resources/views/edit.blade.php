@@ -5,6 +5,10 @@
 <p>{{ $message }}</p>
 @endif
 
+@if ($message = Session::get('failure'))
+<p>{{ $message }}</p>
+@endif
+
 <form action="{{ route('post.update',$post->id)}}" method="POST">
     @csrf
     @method('PUT')

@@ -52,10 +52,10 @@ class PostController extends Controller
      * @return \Illuminate\Http\Response
      */
     public function store(Request $request)
-    {   
-        try{
+    {
+        try {
             //タイトルと画像が空白じゃなかったら
-            if(isset($request->title) && isset($request->image)){
+            if (isset($request->title) && isset($request->image)) {
                 $file_name = $request->file('image')->getClientOriginalName();
                 Post::create([
                     'user_id' => $request->user_id,
@@ -65,15 +65,14 @@ class PostController extends Controller
                     'image' => Storage::putFileAs('', $request->file('image'), $file_name)
                 ]);
                 return redirect()->route('post.index')->with('success', '新規登録完了しました');
-            }else{
+            } else {
                 throw new Exception('新規登録:タイトルまたは画像が未入力です');
             }
-        } catch(Exception $ex){
+        } catch (Exception $ex) {
             //例外発生時の処理（Exceptionのエラー分を取得して表示してくれる）
             $user_id = Auth::id();
-            echo $ex->getMessage();
             Log::error($ex->getMessage());
-            return view('create', compact('user_id'));
+            return back()->with('failure', '必須項目が空白です');
         }
     }
 
@@ -111,8 +110,8 @@ class PostController extends Controller
      */
     public function update(Request $request, $id)
     {
-        try{
-            if(isset($request->title) && isset($request->image)){
+        try {
+            if (isset($request->title) && isset($request->image)) {
                 $update = [
                     'title' => $request->title,
                     'image' => $request->image,
@@ -120,14 +119,13 @@ class PostController extends Controller
                 ];
                 Post::where('id', $id)->update($update);
                 return back()->with('success', '編集完了');
-            }else{
+            } else {
                 throw new Exception('更新:タイトルまたは画像が未入力です');
             }
-        }catch(Exception $ex){
+        } catch (Exception $ex) {
             $post = Post::find($id);
-            echo $ex->getMessage();
             Log::error($ex->getMessage());
-            return view('edit', compact('post'));
+            return back()->with('failure', '必須項目が空白です');
         }
     }
 
@@ -139,19 +137,17 @@ class PostController extends Controller
      */
     public function destroy($id)
     {
-        try{
+        try {
             $post_id = DB::table('posts')->where('id', $id)->first();
-            if(isset($post_id)){
+            if (isset($post_id)) {
                 Post::where('id', $id)->delete();
                 return redirect()->route('post.index')->with('success', '削除完了');
-            }else{
+            } else {
                 throw new Exception('対象のレコードが存在しません');
             }
-        }catch(Exception $ex){
-            echo $ex->getMessage();
+        } catch (Exception $ex) {
             Log::error($ex->getMessage());
-            $posts = Post::all();
-            return view('index', compact('posts'));
+            return redirect()->route('post.index')->with('failure', '対象のレコードが存在しません');
         }
     }
 
@@ -161,6 +157,6 @@ class PostController extends Controller
     public function download(Request $request)
     {
         $download_image = Post::find($request['id']);
-        return response()->download(storage_path('/app/public/'.$download_image['image']));
+        return response()->download(storage_path('/app/public/' . $download_image['image']));
     }
 }

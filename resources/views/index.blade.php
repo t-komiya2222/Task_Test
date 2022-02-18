@@ -4,13 +4,17 @@
 <p>{{ $message }}</p>
 @endif
 
+@if ($message = Session::get('failure'))
+<p>{{ $message }}</p>
+@endif
+
 <table border="1">
     @foreach ($posts as $post)
-        <tr>
-            <td><a href="{{ route('post.show',$post->id) }}">{{ $post->title }}</a></td>
-            <th>{{ $post->image }}</th>
-            <th>{{ $post->description }}</th>
-        </tr>
+    <tr>
+        <td><a href="{{ route('post.show',$post->id) }}">{{ $post->title }}</a></td>
+        <th>{{ $post->image }}</th>
+        <th>{{ $post->description }}</th>
+    </tr>
     @endforeach
 </table>
 
