@@ -85,8 +85,9 @@ class PostController extends Controller
     public function show($id)
     {
         //
+        $login_id = Auth::id();
         $post = Post::find($id);
-        return view('show', compact('post'));
+        return view('show', compact('post', 'login_id'));
     }
 
     /**

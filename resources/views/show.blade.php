@@ -1,12 +1,18 @@
 <h1>詳細画面</h1>
+
 <p>
     <a href="{{ route('post.index')}}">一覧画面</a>
+
+    <!--　ログインユーザーのIDと投稿者のIDが一致しているか確認 -->
+    @if($login_id === $post->user_id)
     <a href="{{ route('post.edit',$post->id)}}">編集</a>
 <form action="{{ route('post.destroy',$post->id)}}" method="POST">
     @csrf
     @method('DELETE')
     <input type="submit" name="" value="削除">
 </form>
+@endif
+
 <form action="{{route('download')}}" method="post">
     @csrf
     <input type="hidden" name="id" value="{{$post['id']}}">
@@ -16,6 +22,7 @@
 </p>
 
 <p>
+    ログインID:{{ $login_id }}<br>
     ユーザーID:{{ $post->user_id }}<br>
     投稿ID:{{ $post->id }}<br>
     タイトル：{{ $post->title }}<br>
