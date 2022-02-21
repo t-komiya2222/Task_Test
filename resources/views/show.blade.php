@@ -13,6 +13,21 @@
 </form>
 @endif
 
+<!-- いいね -->
+@if(empty($likeJudgement))
+<form action="{{route('addlike')}}" method="POST">
+    @csrf
+    <input type="hidden" name="id" value="{{$post['id']}}">
+    <button type="submit">「いいね」する</button>
+</form>
+@else
+<form action="{{route('dislike')}}" method="POST">
+    @csrf
+    <input type="hidden" name="id" value="{{$likeJudgement['id']}}">
+    <button type=" submit">「いいね」を外す</button>
+</form>
+@endif
+
 <form action="{{route('download')}}" method="post">
     @csrf
     <input type="hidden" name="id" value="{{$post['id']}}">

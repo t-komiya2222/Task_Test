@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Post;
+use App\Models\Like;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
@@ -84,10 +85,10 @@ class PostController extends Controller
      */
     public function show($id)
     {
-        //
         $login_id = Auth::id();
+        $likeJudgement = Like::where('user_id', $login_id)->where('post_id', $id)->first();
         $post = Post::find($id);
-        return view('show', compact('post', 'login_id'));
+        return view('show', compact('post', 'login_id', 'likeJudgement'));
     }
 
     /**
