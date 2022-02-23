@@ -46,4 +46,16 @@ class User extends Authenticatable
     {
         return $this->hasmany('App/Models/Like');
     }
+
+    public function likePostGet()
+    {
+        return $this->hasManyThrough(
+            'App\Models\Post', //取得したいテーブル
+            'App\Models\Like', //中間テーブル
+            'user_id', //中間テーブルの外部キー
+            'id', //取得したいテーブルの外部キー
+            null, //呼び出し元テーブルのローカルキー
+            'post_id' //中間テーブルのローカルキー
+        );
+    }
 }

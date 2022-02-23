@@ -4,11 +4,16 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Like;
-use App\Models\Post;
+use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 
 class LikeController extends Controller
 {
+
+    public function __construct()
+    {
+        $this->middleware('auth');
+    }
     //
     public function addlike(Request $request)
     {
@@ -25,9 +30,10 @@ class LikeController extends Controller
         return redirect()->back();
     }
 
-    public function alllike()
+    public function getlike()
     {
-        $likes = Like::where('user_id', Auth::id())->get();
+        $user = User::find(Auth::id());
+        $likes = $user->likePostGet;
         return view('like', compact('likes'));
     }
 }

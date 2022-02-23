@@ -90,7 +90,7 @@
             <div class="links">
                 <a href="{{ url('/post') }}">index</a>
                 <a href="{{ url('post/create') }}">PostCreate</a>
-                <a href="{{ url('/alllike') }}">likes</a>
+                <a href="{{ url('/getlike') }}">likes</a>
             </div>
         </div>
     </div>

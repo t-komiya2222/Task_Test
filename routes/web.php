@@ -28,4 +28,4 @@ Route::post('/download', 'PostController@download')->name('download');
 #Likes Route
 Route::post('/addlike', 'LikeController@addlike')->name('addlike');
 Route::post('/dislike', 'LikeController@dislike')->name('dislike');
-Route::get('/alllike', 'LikeController@alllike')->name('alllike');
+Route::get('/getlike', 'LikeController@getlike')->name('getlike');
