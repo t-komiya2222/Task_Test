@@ -118,9 +118,13 @@ class PostController extends Controller
     {
         try {
             if (isset($request->title) && isset($request->image)) {
+                $file_name = $request->file('image')->getClientOriginalName();
+                Storage::putFileAs('public/', $request->file('image'), $file_name);
+                //画像サイズ変更
+                $this->retouch($file_name);
                 $update = [
                     'title' => $request->title,
-                    'image' => $request->image,
+                    'image' => $request->file('image')->getClientOriginalName(),
                     'description' => $request->description,
                 ];
                 Post::where('id', $id)->update($update);
