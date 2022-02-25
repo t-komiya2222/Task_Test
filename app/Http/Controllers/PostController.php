@@ -3,12 +3,14 @@
 namespace App\Http\Controllers;
 
 use App\Models\Post;
+use App\Models\Like;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Exception;
+use Intervention\Image\Facades\Image;
 
 class PostController extends Controller
 {
@@ -57,12 +59,15 @@ class PostController extends Controller
             //タイトルと画像が空白じゃなかったら
             if (isset($request->title) && isset($request->image)) {
                 $file_name = $request->file('image')->getClientOriginalName();
+                //第一引数は追加したいパス 第二引数は保存したい場所?　第三引数は指定したいファイル名
+                Storage::putFileAs('public/', $request->file('image'), $file_name);
+                //画像サイズ変更
+                $this->retouch($file_name);
                 Post::create([
                     'user_id' => $request->user_id,
                     'title' => $request->title,
                     'description' => $request->description,
-                    //第一引数は追加したいパス 第二引数は保存したい場所?　第三引数は指定したいファイル名
-                    'image' => Storage::putFileAs('', $request->file('image'), $file_name)
+                    'image' => $request->file('image')->getClientOriginalName()
                 ]);
                 return redirect()->route('post.index')->with('success', '新規登録完了しました');
             } else {
@@ -84,9 +89,10 @@ class PostController extends Controller
      */
     public function show($id)
     {
-        //
+        $login_id = Auth::id();
+        $likeJudgement = Like::where('user_id', $login_id)->where('post_id', $id)->first();
         $post = Post::find($id);
-        return view('show', compact('post'));
+        return view('show', compact('post', 'login_id', 'likeJudgement'));
     }
 
     /**
@@ -112,9 +118,13 @@ class PostController extends Controller
     {
         try {
             if (isset($request->title) && isset($request->image)) {
+                $file_name = $request->file('image')->getClientOriginalName();
+                Storage::putFileAs('public/', $request->file('image'), $file_name);
+                //画像サイズ変更
+                $this->retouch($file_name);
                 $update = [
                     'title' => $request->title,
-                    'image' => $request->image,
+                    'image' => $request->file('image')->getClientOriginalName(),
                     'description' => $request->description,
                 ];
                 Post::where('id', $id)->update($update);
@@ -140,6 +150,7 @@ class PostController extends Controller
         try {
             $post_id = DB::table('posts')->where('id', $id)->first();
             if (isset($post_id)) {
+                Storage::delete('' . $post_id->image);
                 Post::where('id', $id)->delete();
                 return redirect()->route('post.index')->with('success', '削除完了');
             } else {
@@ -158,5 +169,19 @@ class PostController extends Controller
     {
         $download_image = Post::find($request['id']);
         return response()->download(storage_path('/app/public/' . $download_image['image']));
+    }
+
+    /**
+     * ImageRetouch
+     */
+    public function retouch($file_name)
+    {
+        //変更対象の読み込み
+        $path = storage_path('app/public/' . $file_name);
+        $img = Image::make($path)->resize(100, 100);
+
+        //保存
+        $save = storage_path('app/public/' . $file_name);
+        $img->save($save);
     }
 }

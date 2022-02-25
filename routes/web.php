@@ -24,3 +24,8 @@ Route::resource('/post', 'PostController');
 
 #Posts Download Route
 Route::post('/download', 'PostController@download')->name('download');
+
+#Likes Route
+Route::post('/addlike', 'LikeController@addlike')->name('addlike');
+Route::post('/dislike', 'LikeController@dislike')->name('dislike');
+Route::get('/getlike', 'LikeController@getlike')->name('getlike');

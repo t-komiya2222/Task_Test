@@ -37,7 +37,25 @@ class User extends Authenticatable
         'email_verified_at' => 'datetime',
     ];
 
-    public function posts(){
-        return $this->hasmany('App/Models/post');
+    public function posts()
+    {
+        return $this->hasmany('App/Models/Post');
+    }
+
+    public function likes()
+    {
+        return $this->hasmany('App/Models/Like');
+    }
+
+    public function likePostGet()
+    {
+        return $this->hasManyThrough(
+            'App\Models\Post', //取得したいテーブル
+            'App\Models\Like', //中間テーブル
+            'user_id', //中間テーブルの外部キー
+            'id', //取得したいテーブルの外部キー
+            null, //呼び出し元テーブルのローカルキー
+            'post_id' //中間テーブルのローカルキー
+        );
     }
 }

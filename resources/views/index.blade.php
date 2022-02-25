@@ -12,6 +12,7 @@
     @foreach ($posts as $post)
     <tr>
         <td><a href="{{ route('post.show',$post->id) }}">{{ $post->title }}</a></td>
+        <th>{{ $post->user_id }}</th>
         <th>{{ $post->image }}</th>
         <th>{{ $post->description }}</th>
     </tr>
