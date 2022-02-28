@@ -15,7 +15,7 @@ class HomeTest extends TestCase
      */
 
     //エントリーポイントにアクセスした時に遷移できるか
-    public function rootTransition()
+    public function test_rootTransition()
     {
         $response = $this->get('/');
         $response->assertStatus(200);
