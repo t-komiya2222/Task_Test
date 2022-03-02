@@ -5,7 +5,6 @@ namespace Tests\Feature;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Support\Facades\Auth;
-use Laravel\Dusk\Browser;
 use Tests\TestCase;
 use App\Models\User;
 use App\Models\Post;
@@ -76,11 +75,15 @@ class PostTest extends TestCase
         $response->assertViewIs('index');
 
         $postdata = Post::where('id', 3)->first();
-        $postdataArray = json_decode(json_encode($postdata), false);
-        dd($postdataArray);
 
-        $response = $this->get('post.show', $postdataArray->id);
+        $response = $this->get('post/' . $postdata->id);
         $response->assertStatus(200);
+        $response->assertViewIs('show');
+
+        $response->assertSee('3');
+        $response->assertSee('アイコン');
+        $response->assertSee('icon.png');
+        $response->assertSee('アイコンアイコン');
     }
 
     /*
