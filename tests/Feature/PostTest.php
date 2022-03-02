@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\Auth;
 use Tests\TestCase;
 use App\Models\User;
 use App\Models\Post;
+use Illuminate\Http\UploadedFile;
 
 
 class PostTest extends TestCase
@@ -86,7 +87,6 @@ class PostTest extends TestCase
         $response->assertSee('アイコンアイコン');
     }
 
-    /*
     //新規登録
     public function test_create()
     {
@@ -102,26 +102,27 @@ class PostTest extends TestCase
 
 
 
-        $response = $this->actingAs(user)->get(route('post.create'));
+        $response = $this->actingAs($user)->get(route('post.create'));
         $response->assertStatus(200);
         $response->assertViewIs('create');
 
         $requestdata = [
             'user_id' => Auth::id(),
             'title' => 'PHPunit',
-            'image' => 'icon.png',
+            'image' => UploadedFile::fake()->image('icon.png'),
             'description' => 'PHPunit'
         ];
 
-        $url = route('post.store');
-        $response = $this->post($url, $requestdata);
+        $response = $this->post('post/', $requestdata);
 
         $response->assertSessionHasNoErrors();
         $response->assertStatus(302);
 
-        $this->assertDatabaseHas('items', ['title' => 'PHPunit']);
-        $response = $this->get('/index');
-        $response->assertStatus(200);
+        $this->assertDatabaseHas('posts', [
+            'user_id' => Auth::id(),
+            'title' => 'PHPunit',
+            'image' => 'icon.png',
+            'description' => 'PHPunit',
+        ]);
     }
-    */
 }
