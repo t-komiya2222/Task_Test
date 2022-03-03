@@ -125,4 +125,108 @@ class PostTest extends TestCase
             'description' => 'PHPunit',
         ]);
     }
+
+    //レコード削除
+    public function test_delete()
+    {
+        //setupで共通処理化
+        $user = factory(User::class)->create([
+            'password' => bcrypt('testtest')
+        ]);
+
+        $response = $this->post('/login', [
+            'email'    => $user->email,
+            'password' => 'testtest'
+        ]);
+
+
+
+        $response = $this->actingAs($user)->get(route('post.create'));
+        $response->assertStatus(200);
+        $response->assertViewIs('create');
+
+        $requestdata = [
+            'user_id' => Auth::id(),
+            'title' => 'PHPunit',
+            'image' => UploadedFile::fake()->image('icon.png'),
+            'description' => 'PHPunit'
+        ];
+
+        $response = $this->post('post/', $requestdata);
+
+        $response->assertSessionHasNoErrors();
+        $response->assertStatus(302);
+
+        $this->assertDatabaseHas('posts', [
+            'user_id' => Auth::id(),
+            'title' => 'PHPunit',
+            'image' => 'icon.png',
+            'description' => 'PHPunit',
+        ]);
+
+        $response = $this->get('/post');
+        $response->assertStatus(200);
+        $response->assertViewIs('index');
+
+        $postdata = Post::where('user_id', Auth::id())->first();
+        $response = $this->get('post/' . $postdata->id);
+
+        $response->assertStatus(200);
+        $response->assertViewIs('show');
+
+        $response->assertSee('削除', '編集');
+
+        $response = $this->delete('post/' . $postdata->id);
+        $this->assertDatabaseMissing('posts', [
+            'user_id' => Auth::id(),
+            'title' => 'PHPunit',
+            'image' => 'icon.png',
+            'description' => 'PHPunit',
+        ]);
+    }
+
+    /*
+    //レコード更新
+    public function test_update()
+    {
+        //setupで共通処理化
+        $user = factory(User::class)->create([
+            'password' => bcrypt('testtest')
+        ]);
+
+        $response = $this->post('/login', [
+            'email'    => $user->email,
+            'password' => 'testtest'
+        ]);
+
+
+
+        $response = $this->actingAs($user)->get(route('post.create'));
+        $response->assertStatus(200);
+        $response->assertViewIs('create');
+
+        $requestdata = [
+            'user_id' => Auth::id(),
+            'title' => 'PHPunit',
+            'image' => UploadedFile::fake()->image('icon.png'),
+            'description' => 'PHPunit'
+        ];
+
+        $response = $this->post('post/', $requestdata);
+
+        $response->assertSessionHasNoErrors();
+        $response->assertStatus(302);
+
+        $this->assertDatabaseHas('posts', [
+            'user_id' => Auth::id(),
+            'title' => 'PHPunit',
+            'image' => 'icon.png',
+            'description' => 'PHPunit',
+        ]);
+
+        $response = $this->actingAs($user)->get('/post');
+        $response->assertStatus(200);
+        $response->assertViewIs('index');
+    }
+    */
 }
