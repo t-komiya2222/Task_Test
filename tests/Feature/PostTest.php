@@ -173,7 +173,6 @@ class PostTest extends TestCase
 
         $response->assertStatus(200);
         $response->assertViewIs('show');
-
         $response->assertSee('削除', '編集');
 
         $response = $this->delete('post/' . $postdata->id);
@@ -185,7 +184,7 @@ class PostTest extends TestCase
         ]);
     }
 
-    /*
+
     //レコード更新
     public function test_update()
     {
@@ -224,9 +223,38 @@ class PostTest extends TestCase
             'description' => 'PHPunit',
         ]);
 
-        $response = $this->actingAs($user)->get('/post');
+        $response = $this->get('/post');
         $response->assertStatus(200);
         $response->assertViewIs('index');
+
+        $postdata = Post::where('user_id', Auth::id())->first();
+        $response = $this->get('post/' . $postdata->id);
+
+        $response->assertStatus(200);
+        $response->assertViewIs('show');
+        $response->assertSee('削除', '編集');
+
+        $response = $this->get('post/' . $postdata->id . '/edit');
+        $response->assertStatus(200);
+        $response->assertViewIs('edit');
+
+        $requestdata = [
+            'user_id' => Auth::id(),
+            'title' => 'PHPunitUpdate',
+            'image' => UploadedFile::fake()->image('icon.png'),
+            'description' => 'PHPunit'
+        ];
+
+        $response = $this->put('post/' . $postdata->id, $requestdata);
+
+        $response->assertSessionHasNoErrors();
+        $response->assertStatus(302);
+
+        $this->assertDatabaseHas('posts', [
+            'user_id' => Auth::id(),
+            'title' => 'PHPunitUpdate',
+            'image' => 'icon.png',
+            'description' => 'PHPunit',
+        ]);
     }
-    */
 }
