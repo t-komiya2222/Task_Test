@@ -17,6 +17,8 @@ class LikeTest extends TestCase
      *
      * @return void
      */
+
+    //いいね投稿
     public function test_like()
     {
         $user = factory(User::class)->create([
@@ -47,6 +49,7 @@ class LikeTest extends TestCase
         ]);
     }
 
+    //いいね削除
     public function test_dislike()
     {
         $user = factory(User::class)->create([
@@ -95,5 +98,43 @@ class LikeTest extends TestCase
             'post_id' => $postdata->id,
             'user_id' => Auth::id(),
         ]);
+    }
+
+    //いいね一覧取得
+    public function test_likeall()
+    {
+        $user = factory(User::class)->create([
+            'password' => bcrypt('testtest')
+        ]);
+
+        $this->post('/login', [
+            'email'    => $user->email,
+            'password' => 'testtest'
+        ]);
+
+        $response = $this->actingAs($user)->get('/post');
+        $response->assertStatus(200);
+        $response->assertViewIs('index');
+
+        $postdata = Post::where('id', 3)->first();
+        $postdataArray = json_decode(json_encode($postdata), true);
+
+        $response = $this->get('post/' . $postdata->id);
+        $response->assertStatus(200);
+        $response->assertViewIs('show');
+        $response->assertsee('「いいね」する');
+
+        $response = $this->post('addlike', $postdataArray);
+        $this->assertDatabaseHas('likes', [
+            'user_id' => Auth::id(),
+            'post_id' => $postdata->id,
+        ]);
+
+        $response = $this->get('getlike');
+        $response->assertStatus(200);
+        $response->assertViewIs('like');
+
+        $likes = Like::all();
+        $this->assertSame(1, count($likes));
     }
 }
