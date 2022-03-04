@@ -257,4 +257,32 @@ class PostTest extends TestCase
             'description' => 'PHPunit',
         ]);
     }
+
+    //ダウンロード
+    public function test_download()
+    {
+        $user = factory(User::class)->create([
+            'password' => bcrypt('testtest')
+        ]);
+
+        $this->post('/login', [
+            'email'    => $user->email,
+            'password' => 'testtest'
+        ]);
+
+        $response = $this->actingAs($user)->get('/post');
+        $response->assertStatus(200);
+        $response->assertViewIs('index');
+
+        $postdata = Post::where('id', 3)->first();
+        $postdataArray = json_decode(json_encode($postdata), true);
+
+        $response = $this->get('post/' . $postdata->id);
+        $response->assertStatus(200);
+        $response->assertViewIs('show');
+        $response->assertsee('ダウンロード');
+
+        $response = $this->post('download', $postdataArray);
+        $response->assertStatus(200);
+    }
 }
