@@ -46,18 +46,15 @@ class PostTest extends TestCase
 
         $response->assertViewIs('index');
 
+        factory(Post::class)->create([
+            'title' => '全件取得1'
+        ]);
+        factory(Post::class)->create([
+            'title' => '全件取得2'
+        ]);
+
         $posts = Post::all();
         $this->assertSame(2, count($posts));
-
-        $response->assertSee('3');
-        $response->assertSee('アイコン');
-        $response->assertSee('icon.png');
-        $response->assertSee('アイコンアイコン');
-
-        $response->assertSee('4');
-        $response->assertSee('アイコン2');
-        $response->assertSee('icon 2.png');
-        $response->assertSee('アイコン2');
     }
 
     //詳細表示
