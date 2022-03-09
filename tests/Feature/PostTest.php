@@ -3,7 +3,6 @@
 namespace Tests\Feature;
 
 use Illuminate\Foundation\Testing\DatabaseTransactions;
-use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Support\Facades\Auth;
 use Tests\TestCase;
 use App\Models\User;
@@ -15,6 +14,7 @@ class PostTest extends TestCase
 {
     use DatabaseTransactions;
 
+    private $user;
     /**
      * A basic feature test example.
      *
@@ -24,24 +24,20 @@ class PostTest extends TestCase
     {
         //共通ユーザー作成処理
         parent::setUp();
+        $this->user = factory(User::class)->create([
+            'password' => bcrypt('testtest')
+        ]);
+
+        $this->post('/login', [
+            'email'    => $this->user->email,
+            'password' => 'testtest'
+        ]);
     }
 
     //全件取得
     public function test_index()
     {
-        //setupで共通処理化
-        $user = factory(User::class)->create([
-            'password' => bcrypt('testtest')
-        ]);
-
-        $this->post('/login', [
-            'email'    => $user->email,
-            'password' => 'testtest'
-        ]);
-
-
-
-        $response = $this->actingAs($user)->get('/post');
+        $response = $this->actingAs($this->user)->get('/post');
         $response->assertStatus(200);
 
         $response->assertViewIs('index');
@@ -54,25 +50,13 @@ class PostTest extends TestCase
         ]);
 
         $posts = Post::all();
-        dump($posts);
-
         $this->assertSame(2, count($posts));
     }
 
     //詳細表示
     public function test_detailView()
     {
-        //setupで共通処理化
-        $user = factory(User::class)->create([
-            'password' => bcrypt('testtest')
-        ]);
-
-        $this->post('/login', [
-            'email'    => $user->email,
-            'password' => 'testtest'
-        ]);
-
-        $response = $this->actingAs($user)->get('/post');
+        $response = $this->actingAs($this->user)->get('/post');
         $response->assertStatus(200);
         $response->assertViewIs('index');
 
@@ -98,19 +82,7 @@ class PostTest extends TestCase
     //新規登録
     public function test_create()
     {
-        //setupで共通処理化
-        $user = factory(User::class)->create([
-            'password' => bcrypt('testtest')
-        ]);
-
-        $response = $this->post('/login', [
-            'email'    => $user->email,
-            'password' => 'testtest'
-        ]);
-
-
-
-        $response = $this->actingAs($user)->get(route('post.create'));
+        $response = $this->actingAs($this->user)->get(route('post.create'));
         $response->assertStatus(200);
         $response->assertViewIs('create');
 
@@ -132,19 +104,7 @@ class PostTest extends TestCase
     //レコード削除
     public function test_delete()
     {
-        //setupで共通処理化
-        $user = factory(User::class)->create([
-            'password' => bcrypt('testtest')
-        ]);
-
-        $response = $this->post('/login', [
-            'email'    => $user->email,
-            'password' => 'testtest'
-        ]);
-
-
-
-        $response = $this->actingAs($user)->get(route('post.create'));
+        $response = $this->actingAs($this->user)->get(route('post.create'));
         $response->assertStatus(200);
         $response->assertViewIs('create');
 
@@ -182,23 +142,10 @@ class PostTest extends TestCase
         ]);
     }
 
-
     //レコード更新
     public function test_update()
     {
-        //setupで共通処理化
-        $user = factory(User::class)->create([
-            'password' => bcrypt('testtest')
-        ]);
-
-        $response = $this->post('/login', [
-            'email'    => $user->email,
-            'password' => 'testtest'
-        ]);
-
-
-
-        $response = $this->actingAs($user)->get(route('post.create'));
+        $response = $this->actingAs($this->user)->get(route('post.create'));
         $response->assertStatus(200);
         $response->assertViewIs('create');
 
@@ -254,16 +201,7 @@ class PostTest extends TestCase
     //ダウンロード
     public function test_download()
     {
-        $user = factory(User::class)->create([
-            'password' => bcrypt('testtest')
-        ]);
-
-        $this->post('/login', [
-            'email'    => $user->email,
-            'password' => 'testtest'
-        ]);
-
-        $response = $this->actingAs($user)->get('/post');
+        $response = $this->actingAs($this->user)->get('/post');
         $response->assertStatus(200);
         $response->assertViewIs('index');
 
