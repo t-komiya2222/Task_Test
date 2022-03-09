@@ -3,7 +3,6 @@
 namespace Tests\Feature;
 
 use Illuminate\Foundation\Testing\DatabaseTransactions;
-use Illuminate\Foundation\Testing\WithFaker;
 use Tests\TestCase;
 use App\Models\User;
 use App\Models\Post;
@@ -13,25 +12,31 @@ use Illuminate\Support\Facades\Auth;
 class LikeTest extends TestCase
 {
     use DatabaseTransactions;
+
+    private $user;
     /**
      * A basic feature test example.
      *
      * @return void
      */
-
-    //いいね投稿
-    public function test_addlike()
+    protected function setUp(): void
     {
-        $user = factory(User::class)->create([
+        //共通ユーザー作成処理
+        parent::setUp();
+        $this->user = factory(User::class)->create([
             'password' => bcrypt('testtest')
         ]);
 
         $this->post('/login', [
-            'email'    => $user->email,
+            'email'    => $this->user->email,
             'password' => 'testtest'
         ]);
+    }
 
-        $response = $this->actingAs($user)->get('/post');
+    //いいね投稿
+    public function test_addlike()
+    {
+        $response = $this->actingAs($this->user)->get('/post');
         $response->assertStatus(200);
         $response->assertViewIs('index');
 
@@ -60,16 +65,7 @@ class LikeTest extends TestCase
     //いいね削除
     public function test_dislike()
     {
-        $user = factory(User::class)->create([
-            'password' => bcrypt('testtest')
-        ]);
-
-        $this->post('/login', [
-            'email'    => $user->email,
-            'password' => 'testtest'
-        ]);
-
-        $response = $this->actingAs($user)->get('/post');
+        $response = $this->actingAs($this->user)->get('/post');
         $response->assertStatus(200);
         $response->assertViewIs('index');
 
@@ -116,16 +112,7 @@ class LikeTest extends TestCase
     //いいね一覧取得
     public function test_likeall()
     {
-        $user = factory(User::class)->create([
-            'password' => bcrypt('testtest')
-        ]);
-
-        $this->post('/login', [
-            'email'    => $user->email,
-            'password' => 'testtest'
-        ]);
-
-        $response = $this->actingAs($user)->get('/post');
+        $response = $this->actingAs($this->user)->get('/post');
         $response->assertStatus(200);
         $response->assertViewIs('index');
 
