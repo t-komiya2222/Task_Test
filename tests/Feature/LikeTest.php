@@ -2,7 +2,7 @@
 
 namespace Tests\Feature;
 
-use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Illuminate\Foundation\Testing\WithFaker;
 use Tests\TestCase;
 use App\Models\User;
@@ -12,6 +12,7 @@ use Illuminate\Support\Facades\Auth;
 
 class LikeTest extends TestCase
 {
+    use DatabaseTransactions;
     /**
      * A basic feature test example.
      *
@@ -19,7 +20,7 @@ class LikeTest extends TestCase
      */
 
     //いいね投稿
-    public function test_like()
+    public function test_addlike()
     {
         $user = factory(User::class)->create([
             'password' => bcrypt('testtest')
@@ -34,7 +35,14 @@ class LikeTest extends TestCase
         $response->assertStatus(200);
         $response->assertViewIs('index');
 
-        $postdata = Post::where('id', 3)->first();
+        factory(Post::class)->create([
+            'user_id' => Auth::id(),
+            'title' => 'PHPunit',
+            'image' => 'icon.png',
+            'description' => 'PHPunit'
+        ]);
+
+        $postdata = Post::where('user_id', Auth::id())->first();
         $postdataArray = json_decode(json_encode($postdata), true);
 
         $response = $this->get('post/' . $postdata->id);
@@ -65,7 +73,14 @@ class LikeTest extends TestCase
         $response->assertStatus(200);
         $response->assertViewIs('index');
 
-        $postdata = Post::where('id', 3)->first();
+        factory(Post::class)->create([
+            'user_id' => Auth::id(),
+            'title' => 'PHPunit',
+            'image' => 'icon.png',
+            'description' => 'PHPunit'
+        ]);
+
+        $postdata = Post::where('user_id', Auth::id())->first();
         $postdataArray = json_decode(json_encode($postdata), true);
 
         $response = $this->get('post/' . $postdata->id);
@@ -89,8 +104,6 @@ class LikeTest extends TestCase
             ['post_id', $postdata->id],
         ])->first();
         $likedataArray = json_decode(json_encode($likedata), true);
-
-        dump($likedataArray);
 
         $response = $this->post('dislike', $likedataArray);
         $this->assertDatabaseMissing('likes', [
@@ -116,7 +129,14 @@ class LikeTest extends TestCase
         $response->assertStatus(200);
         $response->assertViewIs('index');
 
-        $postdata = Post::where('id', 3)->first();
+        factory(Post::class)->create([
+            'user_id' => Auth::id(),
+            'title' => 'PHPunit',
+            'image' => 'icon.png',
+            'description' => 'PHPunit'
+        ]);
+
+        $postdata = Post::where('user_id', Auth::id())->first();
         $postdataArray = json_decode(json_encode($postdata), true);
 
         $response = $this->get('post/' . $postdata->id);
