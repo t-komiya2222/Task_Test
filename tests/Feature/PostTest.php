@@ -54,6 +54,8 @@ class PostTest extends TestCase
         ]);
 
         $posts = Post::all();
+        dump($posts);
+
         $this->assertSame(2, count($posts));
     }
 
@@ -74,15 +76,22 @@ class PostTest extends TestCase
         $response->assertStatus(200);
         $response->assertViewIs('index');
 
-        $postdata = Post::where('id', 3)->first();
+        factory(Post::class)->create([
+            'user_id' => Auth::id(),
+            'title' => 'アイコン',
+            'image' => 'hogehoge',
+            'description' => 'アイコンアイコン'
+        ]);
+
+        $postdata = Post::where('title', 'アイコン')->first();
 
         $response = $this->get('post/' . $postdata->id);
         $response->assertStatus(200);
         $response->assertViewIs('show');
 
-        $response->assertSee('3');
+        $response->assertSee($postdata->id);
         $response->assertSee('アイコン');
-        $response->assertSee('icon.png');
+        $response->assertSee('hogehoge');
         $response->assertSee('アイコンアイコン');
     }
 
@@ -105,19 +114,14 @@ class PostTest extends TestCase
         $response->assertStatus(200);
         $response->assertViewIs('create');
 
-        $requestdata = [
+        factory(Post::class)->create([
             'user_id' => Auth::id(),
             'title' => 'PHPunit',
-            'image' => UploadedFile::fake()->image('icon.png'),
+            'image' => 'icon.png',
             'description' => 'PHPunit'
-        ];
+        ]);
 
-        $response = $this->post('post/', $requestdata);
-
-        $response->assertSessionHasNoErrors();
-        $response->assertStatus(302);
-
-        $this->assertDatabaseHas('posts', [
+        $test = $this->assertDatabaseHas('posts', [
             'user_id' => Auth::id(),
             'title' => 'PHPunit',
             'image' => 'icon.png',
@@ -144,17 +148,12 @@ class PostTest extends TestCase
         $response->assertStatus(200);
         $response->assertViewIs('create');
 
-        $requestdata = [
+        factory(Post::class)->create([
             'user_id' => Auth::id(),
             'title' => 'PHPunit',
-            'image' => UploadedFile::fake()->image('icon.png'),
+            'image' => 'icon.png',
             'description' => 'PHPunit'
-        ];
-
-        $response = $this->post('post/', $requestdata);
-
-        $response->assertSessionHasNoErrors();
-        $response->assertStatus(302);
+        ]);
 
         $this->assertDatabaseHas('posts', [
             'user_id' => Auth::id(),
@@ -203,17 +202,12 @@ class PostTest extends TestCase
         $response->assertStatus(200);
         $response->assertViewIs('create');
 
-        $requestdata = [
+        factory(Post::class)->create([
             'user_id' => Auth::id(),
             'title' => 'PHPunit',
-            'image' => UploadedFile::fake()->image('icon.png'),
+            'image' => 'icon.png',
             'description' => 'PHPunit'
-        ];
-
-        $response = $this->post('post/', $requestdata);
-
-        $response->assertSessionHasNoErrors();
-        $response->assertStatus(302);
+        ]);
 
         $this->assertDatabaseHas('posts', [
             'user_id' => Auth::id(),
@@ -273,7 +267,14 @@ class PostTest extends TestCase
         $response->assertStatus(200);
         $response->assertViewIs('index');
 
-        $postdata = Post::where('id', 3)->first();
+        factory(Post::class)->create([
+            'user_id' => Auth::id(),
+            'title' => 'PHPunit',
+            'image' => 'icon.png',
+            'description' => 'PHPunit'
+        ]);
+
+        $postdata = Post::where('user_id', Auth::id())->first();
         $postdataArray = json_decode(json_encode($postdata), true);
 
         $response = $this->get('post/' . $postdata->id);
