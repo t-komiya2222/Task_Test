@@ -2,8 +2,7 @@
 
 namespace Tests\Feature;
 
-use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Foundation\Testing\WithFaker;
+use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Illuminate\Support\Facades\Auth;
 use Tests\TestCase;
 use App\Models\User;
@@ -13,6 +12,9 @@ use Illuminate\Http\UploadedFile;
 
 class PostTest extends TestCase
 {
+    use DatabaseTransactions;
+
+    private $user;
     /**
      * A basic feature test example.
      *
@@ -22,103 +24,76 @@ class PostTest extends TestCase
     {
         //共通ユーザー作成処理
         parent::setUp();
+        $this->user = factory(User::class)->create([
+            'password' => bcrypt('testtest')
+        ]);
+
+        $this->post('/login', [
+            'email'    => $this->user->email,
+            'password' => 'testtest'
+        ]);
     }
 
     //全件取得
     public function test_index()
     {
-        //setupで共通処理化
-        $user = factory(User::class)->create([
-            'password' => bcrypt('testtest')
-        ]);
-
-        $this->post('/login', [
-            'email'    => $user->email,
-            'password' => 'testtest'
-        ]);
-
-
-
-        $response = $this->actingAs($user)->get('/post');
+        $response = $this->actingAs($this->user)->get('/post');
         $response->assertStatus(200);
 
         $response->assertViewIs('index');
 
+        factory(Post::class)->create([
+            'title' => '全件取得1'
+        ]);
+        factory(Post::class)->create([
+            'title' => '全件取得2'
+        ]);
+
         $posts = Post::all();
         $this->assertSame(2, count($posts));
-
-        $response->assertSee('3');
-        $response->assertSee('アイコン');
-        $response->assertSee('icon.png');
-        $response->assertSee('アイコンアイコン');
-
-        $response->assertSee('4');
-        $response->assertSee('アイコン2');
-        $response->assertSee('icon 2.png');
-        $response->assertSee('アイコン2');
     }
 
     //詳細表示
     public function test_detailView()
     {
-        //setupで共通処理化
-        $user = factory(User::class)->create([
-            'password' => bcrypt('testtest')
-        ]);
-
-        $this->post('/login', [
-            'email'    => $user->email,
-            'password' => 'testtest'
-        ]);
-
-        $response = $this->actingAs($user)->get('/post');
+        $response = $this->actingAs($this->user)->get('/post');
         $response->assertStatus(200);
         $response->assertViewIs('index');
 
-        $postdata = Post::where('id', 3)->first();
+        factory(Post::class)->create([
+            'user_id' => Auth::id(),
+            'title' => 'アイコン',
+            'image' => 'hogehoge',
+            'description' => 'アイコンアイコン'
+        ]);
+
+        $postdata = Post::where('title', 'アイコン')->first();
 
         $response = $this->get('post/' . $postdata->id);
         $response->assertStatus(200);
         $response->assertViewIs('show');
 
-        $response->assertSee('3');
+        $response->assertSee($postdata->id);
         $response->assertSee('アイコン');
-        $response->assertSee('icon.png');
+        $response->assertSee('hogehoge');
         $response->assertSee('アイコンアイコン');
     }
 
     //新規登録
     public function test_create()
     {
-        //setupで共通処理化
-        $user = factory(User::class)->create([
-            'password' => bcrypt('testtest')
-        ]);
-
-        $response = $this->post('/login', [
-            'email'    => $user->email,
-            'password' => 'testtest'
-        ]);
-
-
-
-        $response = $this->actingAs($user)->get(route('post.create'));
+        $response = $this->actingAs($this->user)->get(route('post.create'));
         $response->assertStatus(200);
         $response->assertViewIs('create');
 
-        $requestdata = [
+        factory(Post::class)->create([
             'user_id' => Auth::id(),
             'title' => 'PHPunit',
-            'image' => UploadedFile::fake()->image('icon.png'),
+            'image' => 'icon.png',
             'description' => 'PHPunit'
-        ];
+        ]);
 
-        $response = $this->post('post/', $requestdata);
-
-        $response->assertSessionHasNoErrors();
-        $response->assertStatus(302);
-
-        $this->assertDatabaseHas('posts', [
+        $test = $this->assertDatabaseHas('posts', [
             'user_id' => Auth::id(),
             'title' => 'PHPunit',
             'image' => 'icon.png',
@@ -129,33 +104,16 @@ class PostTest extends TestCase
     //レコード削除
     public function test_delete()
     {
-        //setupで共通処理化
-        $user = factory(User::class)->create([
-            'password' => bcrypt('testtest')
-        ]);
-
-        $response = $this->post('/login', [
-            'email'    => $user->email,
-            'password' => 'testtest'
-        ]);
-
-
-
-        $response = $this->actingAs($user)->get(route('post.create'));
+        $response = $this->actingAs($this->user)->get(route('post.create'));
         $response->assertStatus(200);
         $response->assertViewIs('create');
 
-        $requestdata = [
+        factory(Post::class)->create([
             'user_id' => Auth::id(),
             'title' => 'PHPunit',
-            'image' => UploadedFile::fake()->image('icon.png'),
+            'image' => 'icon.png',
             'description' => 'PHPunit'
-        ];
-
-        $response = $this->post('post/', $requestdata);
-
-        $response->assertSessionHasNoErrors();
-        $response->assertStatus(302);
+        ]);
 
         $this->assertDatabaseHas('posts', [
             'user_id' => Auth::id(),
@@ -184,37 +142,19 @@ class PostTest extends TestCase
         ]);
     }
 
-
     //レコード更新
     public function test_update()
     {
-        //setupで共通処理化
-        $user = factory(User::class)->create([
-            'password' => bcrypt('testtest')
-        ]);
-
-        $response = $this->post('/login', [
-            'email'    => $user->email,
-            'password' => 'testtest'
-        ]);
-
-
-
-        $response = $this->actingAs($user)->get(route('post.create'));
+        $response = $this->actingAs($this->user)->get(route('post.create'));
         $response->assertStatus(200);
         $response->assertViewIs('create');
 
-        $requestdata = [
+        factory(Post::class)->create([
             'user_id' => Auth::id(),
             'title' => 'PHPunit',
-            'image' => UploadedFile::fake()->image('icon.png'),
+            'image' => 'icon.png',
             'description' => 'PHPunit'
-        ];
-
-        $response = $this->post('post/', $requestdata);
-
-        $response->assertSessionHasNoErrors();
-        $response->assertStatus(302);
+        ]);
 
         $this->assertDatabaseHas('posts', [
             'user_id' => Auth::id(),
@@ -261,20 +201,18 @@ class PostTest extends TestCase
     //ダウンロード
     public function test_download()
     {
-        $user = factory(User::class)->create([
-            'password' => bcrypt('testtest')
-        ]);
-
-        $this->post('/login', [
-            'email'    => $user->email,
-            'password' => 'testtest'
-        ]);
-
-        $response = $this->actingAs($user)->get('/post');
+        $response = $this->actingAs($this->user)->get('/post');
         $response->assertStatus(200);
         $response->assertViewIs('index');
 
-        $postdata = Post::where('id', 3)->first();
+        factory(Post::class)->create([
+            'user_id' => Auth::id(),
+            'title' => 'PHPunit',
+            'image' => 'icon.png',
+            'description' => 'PHPunit'
+        ]);
+
+        $postdata = Post::where('user_id', Auth::id())->first();
         $postdataArray = json_decode(json_encode($postdata), true);
 
         $response = $this->get('post/' . $postdata->id);
